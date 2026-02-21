@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои друзья</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inconsolata:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --card: #16161f;
+      --border: #2a2a3d;
+      --accent: #5865F2;
+      --accent-glow: rgba(88, 101, 242, 0.3);
+      --accent2: #eb459e;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --online: #57F287;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inconsolata', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(88,101,242,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,101,242,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow blob */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(88,101,242,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .header-label {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-line {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      margin: 16px auto 0;
+      border-radius: 2px;
+    }
+
+    /* Friends list */
+    .friends-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .friend-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .friend-card:nth-child(1) { animation-delay: 0.1s; }
+    .friend-card:nth-child(2) { animation-delay: 0.2s; }
+    .friend-card:nth-child(3) { animation-delay: 0.3s; }
+    .friend-card:nth-child(4) { animation-delay: 0.4s; }
+    .friend-card:nth-child(5) { animation-delay: 0.5s; }
+    .friend-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .friend-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-glow), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .friend-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px) translateX(4px);
+      box-shadow: 0 8px 32px rgba(88, 101, 242, 0.2), inset 0 0 0 1px rgba(88,101,242,0.1);
+    }
+
+    .friend-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Arrow animation on hover */
+    .friend-card:hover .arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .avatar-online {
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 11px;
+      height: 11px;
+      background: var(--online);
+      border-radius: 50%;
+      border: 2px solid var(--card);
+    }
+
+    /* Info */
+    .friend-info {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .friend-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    .friend-tag {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Arrow */
+    .arrow {
+      font-size: 18px;
+      color: var(--muted);
+      transition: transform 0.2s, color 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Discord badge */
+    .dc-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dc-icon {
+      width: 16px;
+      height: 16px;
+      fill: var(--accent);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      animation: fadeUp 0.6s 0.7s ease both;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="header-label">// мои друзья</div>
+      <h1>FRIENDS</h1>
+      <div class="header-line"></div>
+    </div>
+
+    <div class="friends-list">
+
+      <!-- Карточка друга. Замени имя, тег и ссылку на свои -->
+      <a class="friend-card" href="https://discord.com/users/1191322600954138634" target="_blank">
+        <div class="avatar">
+          А
+          <div class="avatar-online"></div>
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">Дамир</div>
+          <div class="friend-tag">princroman2</div>
+        </div>
+        <div class="dc-badge">
+          <svg class="dc-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+          </svg>
+          Discord
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="friend-card" href="https://discord.com/users/1015370184778842153" target="_blank">
+        <div class="avatar" style="background: linear-gradient(135deg, #eb459e, #ff6b6b);">
+          М
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">Максим</div>
+          <div class="friend-tag">zerroro_.</div>
+        </div>
+        <div class="dc-badge">
+          <svg class="dc-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+          </svg>
+          Discord
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="friend-card" href="https://discord.com/users/1238556439535026287" target="_blank">
+        <div class="avatar" style="background: linear-gradient(135deg, #57F287, #23a55a);">
+          Д
+          <div class="avatar-online"></div>
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">Рома</div>
+          <div class="friend-tag">skuf0139</div>
+        </div>
+        <div class="dc-badge">
+          <svg class="dc-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.12 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+          </svg>
+          Discord
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+    </div>
+
+    <div class="footer">// нажми на карточку чтобы открыть Discord</div>
+
+  </div>
+</body>
+</html>
